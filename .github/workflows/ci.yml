@@ -115,7 +115,7 @@ jobs:
             </dict>
           </dict></array></dict></plist>
           EOF2
-          sed -i '' -E "s/Build [^·]*· [^·]*·/Build $GITHUB_RUN_NUMBER (v$VERSION) · $(date -u +%Y-%m-%d) ·/" web/install.html
+          sed -i '' -E "s/Build [^·]*· [^·]*·/Build $GITHUB_RUN_NUMBER (v$VERSION) · $(date -u +%Y-%m-%d) ·/; s/manifest\.plist\?v=[A-Za-z0-9_]*/manifest.plist?v=$GITHUB_RUN_NUMBER/" web/install.html
           git checkout -- project.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
