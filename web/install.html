@@ -8,7 +8,11 @@ ol{color:#d4d4d4;padding-left:20px}li{margin:6px 0}.meta{font-size:13px;color:#5
 <body><main>
 <img src="icon-180.png" alt=""><h1>Install LiveNote</h1>
 <p>Type a note, it sits on your Lock Screen and in the Dynamic Island until you clear it. Direct install for registered iPhones. No App Store, no TestFlight.</p>
-<a class="btn" href="itms-services://?action=download-manifest&amp;url=https://assiamahs.github.io/livenote/ipa/manifest.plist">Install on this iPhone</a>
+<a class="btn" id="install" href="itms-services://?action=download-manifest&amp;url=https://assiamahs.github.io/livenote/ipa/manifest.plist">Install on this iPhone</a>
+<p id="status" class="meta" hidden></p>
+<script>
+fetch("ipa/manifest.plist",{method:"HEAD",cache:"no-store"}).then(r=>{if(!r.ok)throw 0}).catch(()=>{const b=document.getElementById("install"),s=document.getElementById("status");b.removeAttribute("href");b.style.background="#3a3d45";b.style.color="#9a9ea8";b.textContent="No build published yet";s.hidden=false;s.textContent="The first build is waiting on Apple: the developer account has to accept the updated Program License Agreement before a signed IPA can be produced. Reload this page after the next CI run.";});
+</script>
 <ol><li>Open this page in <b>Safari</b> on the iPhone.</li><li>Tap Install, then <b>Install</b> on the iOS prompt.</li><li>It lands in the App Library (search for it if it's not on a Home Screen page).</li></ol>
 <h2>Set up the Action button</h2>
 <ol><li>Shortcuts app → <b>+</b> → search <b>LiveNote</b> → <b>Create &amp; Go Live</b>.</li><li>Leave <b>Text</b> empty so it asks you every time. Expand the action and turn off <b>Show When Run</b>.</li><li>Settings → <b>Action Button</b> → Shortcut → pick it. Back Tap, Control Center and a Lock Screen control work too.</li></ol>
