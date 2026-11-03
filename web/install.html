@@ -8,7 +8,7 @@ ol{color:#d4d4d4;padding-left:20px}li{margin:6px 0}.meta{font-size:13px;color:#5
 <body><main>
 <img src="icon-180.png" alt=""><h1>Install LiveNote</h1>
 <p>Type a note, it sits on your Lock Screen and in the Dynamic Island until you clear it. Direct install for registered iPhones. No App Store, no TestFlight.</p>
-<a class="btn" id="install" href="itms-services://?action=download-manifest&amp;url=https://assiamahs.github.io/livenote/ipa/manifest.plist?v=BUILD_NUMBER">Install on this iPhone</a>
+<a class="btn" id="install" href="itms-services://?action=download-manifest&amp;url=https://assiamahs.github.io/livenote/ipa/manifest.plist?v=3">Install on this iPhone</a>
 <p id="status" class="meta" hidden></p>
 <script>
 (function(){var ua=navigator.userAgent,st=navigator.standalone;var isSafari=/Safari/.test(ua)&&!/CriOS|FxiOS|EdgiOS/.test(ua);var inApp=(window.navigator.standalone===false&&!/Version\/[\d.]+.*Safari/.test(ua))||/FBAN|FBAV|Instagram|Twitter|Claude|Line\//i.test(ua);if(inApp)document.getElementById("inapp").style.display="block";})();
@@ -18,5 +18,5 @@ fetch("ipa/manifest.plist",{method:"HEAD",cache:"no-store"}).then(r=>{if(!r.ok)t
 <ol><li>Open this page in the real <b>Safari</b> app, not inside Claude, Messages or X.</li><li>Tap Install. iOS asks <b>Open in &ldquo;iTunes&rdquo;?</b> &rarr; tap <b>Open</b>. Then <b>Install</b> on the &ldquo;would like to install LiveNote&rdquo; prompt.</li><li>It lands in the App Library (search for it if it's not on a Home Screen page).</li></ol>
 <h2>Set up the Action button</h2>
 <ol><li>Shortcuts app → <b>+</b> → search <b>LiveNote</b> → <b>Create &amp; Go Live</b>.</li><li>Leave <b>Text</b> empty so it asks you every time. Expand the action and turn off <b>Show When Run</b>.</li><li>Settings → <b>Action Button</b> → Shortcut → pick it. Back Tap, Control Center and a Lock Screen control work too.</li></ol>
-<p class="meta">Build 2 (v1.0.0) · 2026-11-03 · only installs on iPhones registered to the developer account.</p>
+<p class="meta">Build 3 (v1.0.0) · 2026-11-03 · only installs on iPhones registered to the developer account.</p>
 </main></body></html>
