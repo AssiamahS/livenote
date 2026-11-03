@@ -81,6 +81,12 @@ final class Store {
         await LiveActivityController.end()
     }
 
+    /// Re-push the live note so a changed card style applies at once.
+    func restyleLive() async {
+        guard let note = liveNote else { return }
+        await LiveActivityController.go(note)
+    }
+
     /// Live Activities expire after a few hours. If the app comes back and the
     /// chosen note has no activity any more, put it back up.
     func restoreIfNeeded() async {
@@ -94,7 +100,8 @@ enum LiveActivityController {
 
     static func go(_ note: Note) async {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
-        let state = NoteAttributes.ContentState(noteID: note.id, text: String(note.text.prefix(400)), updatedAt: .now)
+        let glass = UserDefaults.standard.object(forKey: LiveNoteBrand.glassKey) as? Bool ?? true
+        let state = NoteAttributes.ContentState(noteID: note.id, text: String(note.text.prefix(400)), updatedAt: .now, glass: glass)
         let content = ActivityContent(state: state, staleDate: nil)
         let existing = Activity<NoteAttributes>.activities
         if let first = existing.first {

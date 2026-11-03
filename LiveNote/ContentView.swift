@@ -147,10 +147,19 @@ struct EditView: View {
 
 struct SetupView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(LiveNoteBrand.glassKey) private var glass = true
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Toggle("Transparent card", isOn: $glass)
+                        .onChange(of: glass) { _, _ in Task { await Store.shared.restyleLive() } }
+                } header: {
+                    Text("Lock Screen card")
+                } footer: {
+                    Text("On: iOS 26 glass over your wallpaper. Off: solid dark card.")
+                }
                 Section("Action button, Back Tap, Lock Screen") {
                     step(1, "Open **Shortcuts**, tap **+**, search **LiveNote**, pick **Create & Go Live**.")
                     step(2, "Leave **Text** empty so it asks you each time. Expand the action and turn off **Show When Run**.")

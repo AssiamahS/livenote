@@ -16,9 +16,9 @@ private let field = Color(red: LiveNoteBrand.background.red, green: LiveNoteBran
 struct NoteLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: NoteAttributes.self) { context in
-            LockScreenCard(text: context.state.text)
-                .activityBackgroundTint(field)
-                .activitySystemActionForegroundColor(.white)
+            LockScreenCard(text: context.state.text, glass: context.state.glass)
+                .activityBackgroundTint(context.state.glass ? nil : field)
+                .activitySystemActionForegroundColor(context.state.glass ? .primary : .white)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
@@ -51,12 +51,13 @@ struct NoteLiveActivity: Widget {
 
 struct LockScreenCard: View {
     let text: String
+    var glass = true
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Text(text)
                 .font(.body.weight(.medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(glass ? AnyShapeStyle(.primary) : AnyShapeStyle(.white))
                 .lineLimit(5)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Button(intent: DismissLiveNoteIntent()) {

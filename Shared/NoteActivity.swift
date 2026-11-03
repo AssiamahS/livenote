@@ -8,11 +8,14 @@ struct NoteAttributes: ActivityAttributes {
         var noteID: UUID
         var text: String
         var updatedAt: Date
+        /// true = translucent system material (iOS 26 glass), false = solid dark card
+        var glass: Bool
     }
     var startedAt: Date
 }
 
 enum LiveNoteBrand {
+    static let glassKey = "glassCard"
     static let accent = (red: 0.18, green: 0.83, blue: 0.78)
     static let background = (red: 0.05, green: 0.06, blue: 0.08)
 }
