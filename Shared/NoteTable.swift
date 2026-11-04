@@ -9,14 +9,14 @@ struct NoteTable {
     var columns: Int { header.count }
 
     static func parse(_ text: String) -> NoteTable? {
-        let lines = text.split(whereSeparator: \.isNewline).map { String($0).trimmingCharacters(in: .whitespaces) }
+        let rawLines = text.split(whereSeparator: \.isNewline).map { String($0).trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
             .filter { !$0.allSatisfy { "|-: ".contains($0) } }   // markdown rule line
+        var lines = rawLines
         guard lines.count >= 2 else { return nil }
         func sep(_ l: String) -> Bool { l.contains("\t") || l.contains("|") }
         // a plain first line above the rows is the table's title
         var title: String?
-        var lines = lines
         if !sep(lines[0]), lines.count >= 3, lines.dropFirst().allSatisfy(sep) {
             title = lines.removeFirst().trimmingCharacters(in: CharacterSet(charactersIn: ":：- "))
         }
