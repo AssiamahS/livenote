@@ -58,7 +58,11 @@ struct ContentView: View {
             .padding(.horizontal, 4)
             ForEach(store.liveNotes) { note in
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(note.text).font(.title3.weight(.medium)).fixedSize(horizontal: false, vertical: true)
+                    if let t = NoteTable.parse(note.text) {
+                        NoteTableView(table: t, maxRows: 12)
+                    } else {
+                        Text(note.text).font(.title3.weight(.medium)).fixedSize(horizontal: false, vertical: true)
+                    }
                     HStack {
                         Button { editing = note } label: { Label("Edit", systemImage: "pencil") }
                         Spacer()
@@ -106,7 +110,11 @@ struct ContentView: View {
             Text("Notes").font(.caption.weight(.bold)).foregroundStyle(.secondary).padding(.horizontal, 4)
             ForEach(store.notes) { note in
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text(note.text).lineLimit(3)
+                    if let t = NoteTable.parse(note.text) {
+                        Label("\(t.rows.count)-row table · \(t.header.prefix(3).joined(separator: ", "))", systemImage: "tablecells").lineLimit(2)
+                    } else {
+                        Text(note.text).lineLimit(3)
+                    }
                     Spacer()
                     if store.isLive(note) { Text("LIVE").font(.caption2.bold()).foregroundStyle(accent) }
                     Text(note.createdAt, format: .dateTime.month(.abbreviated).day()).font(.caption2).foregroundStyle(.tertiary)
@@ -177,6 +185,10 @@ struct SetupView: View {
                     Text("“Hey Siri, create a LiveNote” — new note on the Lock Screen.")
                     Text("“Hey Siri, LiveNote done” — clears the newest note. No tapping.")
                     Text("“Hey Siri, clear all my LiveNotes” — clears every card.")
+                }
+                Section("Tables") {
+                    Text("Paste rows separated by tabs or pipes and the card draws a real grid. Markdown tables from a chat work as is.")
+                    Text("Ask for it like this: “give me that as a plain text table, pipe separated, header row first, 5 columns max, abbreviated so each row is short, no more than 8 rows.”")
                 }
                 Section("Good to know") {
                     Text("Up to 3 notes can be live at once; they stack on the Lock Screen and the newest one shows in the Dynamic Island. Posting a 4th drops the oldest.")

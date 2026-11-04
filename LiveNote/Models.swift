@@ -119,7 +119,7 @@ enum LiveActivityController {
     static func go(_ note: Note) async {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         let glass = UserDefaults.standard.object(forKey: LiveNoteBrand.glassKey) as? Bool ?? true
-        let state = NoteAttributes.ContentState(noteID: note.id, text: String(note.text.prefix(400)), updatedAt: .now, glass: glass)
+        let state = NoteAttributes.ContentState(noteID: note.id, text: String(note.text.prefix(1500)), updatedAt: .now, glass: glass)
         let content = ActivityContent(state: state, staleDate: nil)
         let mine = Activity<NoteAttributes>.activities.filter { $0.content.state.noteID == note.id }
         if let first = mine.first {

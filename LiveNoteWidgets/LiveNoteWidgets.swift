@@ -31,18 +31,22 @@ struct NoteLiveActivity: Widget {
                     .buttonStyle(.plain)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text(context.state.text)
-                        .font(.subheadline)
-                        .foregroundStyle(.white)
-                        .lineLimit(4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if let t = NoteTable.parse(context.state.text) {
+                        NoteTableView(table: t, maxRows: 6, tint: .white)
+                    } else {
+                        Text(context.state.text)
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                            .lineLimit(4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
             } compactLeading: {
                 Image(systemName: "note.text").foregroundStyle(accent)
             } compactTrailing: {
                 // iOS caps this region at roughly a dozen characters on every model;
                 // press and hold the island for the full note.
-                Text(context.state.text)
+                Text(NoteTable.parse(context.state.text)?.compactLabel ?? context.state.text)
                     .font(.caption2)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -61,12 +65,17 @@ struct LockScreenCard: View {
     var glass = true
 
     var body: some View {
+        let table = NoteTable.parse(text)
         HStack(alignment: .top, spacing: 12) {
-            Text(text)
-                .font(.body.weight(.medium))
-                .foregroundStyle(glass ? AnyShapeStyle(.primary) : AnyShapeStyle(.white))
-                .lineLimit(5)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            if let table {
+                NoteTableView(table: table, maxRows: 8, tint: glass ? .primary : .white)
+            } else {
+                Text(text)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(glass ? AnyShapeStyle(.primary) : AnyShapeStyle(.white))
+                    .lineLimit(5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             Button(intent: DismissLiveNoteIntent(noteID: noteID)) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
@@ -74,6 +83,7 @@ struct LockScreenCard: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, table == nil ? 16 : 10)
     }
 }
