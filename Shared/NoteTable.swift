@@ -3,6 +3,7 @@ import SwiftUI
 /// A note whose lines are split by tabs or pipes is a table. Markdown tables
 /// pasted from a chat ("| a | b |" plus a "|---|---|" rule) are accepted too.
 struct NoteTable {
+    var title: String?
     var header: [String]
     var rows: [[String]]
     var columns: Int { header.count }
@@ -12,6 +13,13 @@ struct NoteTable {
             .filter { !$0.isEmpty }
             .filter { !$0.allSatisfy { "|-: ".contains($0) } }   // markdown rule line
         guard lines.count >= 2 else { return nil }
+        func sep(_ l: String) -> Bool { l.contains("\t") || l.contains("|") }
+        // a plain first line above the rows is the table's title
+        var title: String?
+        var lines = lines
+        if !sep(lines[0]), lines.count >= 3, lines.dropFirst().allSatisfy(sep) {
+            title = lines.removeFirst().trimmingCharacters(in: CharacterSet(charactersIn: ":：- "))
+        }
         let useTabs = lines.allSatisfy { $0.contains("\t") }
         let usePipes = !useTabs && lines.allSatisfy { $0.contains("|") }
         guard useTabs || usePipes else { return nil }
@@ -27,7 +35,7 @@ struct NoteTable {
         let width = cells.map(\.count).max() ?? 0
         guard width >= 2 else { return nil }
         cells = cells.map { $0 + Array(repeating: "", count: width - $0.count) }
-        return NoteTable(header: cells[0], rows: Array(cells.dropFirst()))
+        return NoteTable(title: title, header: cells[0], rows: Array(cells.dropFirst()))
     }
 
     /// Short label for the Dynamic Island pill: first data row, first two cells.
@@ -49,6 +57,16 @@ struct NoteTableView: View {
     private var line: Color { tint.opacity(0.28) }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            if let t = table.title, !t.isEmpty {
+                Text(t).font(.caption.weight(.semibold)).foregroundStyle(tint).lineLimit(1)
+            }
+            grid
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var grid: some View {
         Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
             GridRow {
                 ForEach(Array(table.header.enumerated()), id: \.offset) { _, h in
@@ -73,7 +91,6 @@ struct NoteTableView: View {
         }
         .overlay(RoundedRectangle(cornerRadius: 4).stroke(line, lineWidth: 0.6))
         .clipShape(RoundedRectangle(cornerRadius: 4))
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func cell(_ text: String, bold: Bool) -> some View {
