@@ -16,7 +16,7 @@ private let field = Color(red: LiveNoteBrand.background.red, green: LiveNoteBran
 struct NoteLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: NoteAttributes.self) { context in
-            LockScreenCard(text: context.state.text, glass: context.state.glass)
+            LockScreenCard(text: context.state.text, noteID: context.state.noteID.uuidString, glass: context.state.glass)
                 .activityBackgroundTint(context.state.glass ? nil : field)
                 .activitySystemActionForegroundColor(context.state.glass ? .primary : .white)
         } dynamicIsland: { context in
@@ -25,7 +25,7 @@ struct NoteLiveActivity: Widget {
                     Image(systemName: "note.text").foregroundStyle(accent).font(.body.bold())
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Button(intent: DismissLiveNoteIntent()) {
+                    Button(intent: DismissLiveNoteIntent(noteID: context.state.noteID.uuidString)) {
                         Image(systemName: "checkmark.circle.fill").foregroundStyle(accent)
                     }
                     .buttonStyle(.plain)
@@ -40,7 +40,13 @@ struct NoteLiveActivity: Widget {
             } compactLeading: {
                 Image(systemName: "note.text").foregroundStyle(accent)
             } compactTrailing: {
-                Text(context.state.text).font(.caption2).lineLimit(1).frame(maxWidth: 64)
+                // iOS caps this region at roughly a dozen characters on every model;
+                // press and hold the island for the full note.
+                Text(context.state.text)
+                    .font(.caption2)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .frame(maxWidth: 110, alignment: .leading)
             } minimal: {
                 Image(systemName: "note.text").foregroundStyle(accent)
             }
@@ -51,6 +57,7 @@ struct NoteLiveActivity: Widget {
 
 struct LockScreenCard: View {
     let text: String
+    let noteID: String
     var glass = true
 
     var body: some View {
@@ -60,7 +67,7 @@ struct LockScreenCard: View {
                 .foregroundStyle(glass ? AnyShapeStyle(.primary) : AnyShapeStyle(.white))
                 .lineLimit(5)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Button(intent: DismissLiveNoteIntent()) {
+            Button(intent: DismissLiveNoteIntent(noteID: noteID)) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
                     .foregroundStyle(accent)

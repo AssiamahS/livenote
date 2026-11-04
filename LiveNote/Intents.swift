@@ -36,7 +36,7 @@ struct GoLiveAgainIntent: LiveActivityIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard let note = Store.shared.liveNote ?? Store.shared.notes.first else {
+        guard let note = Store.shared.liveNotes.first ?? Store.shared.notes.first else {
             return .result(dialog: "No notes yet.")
         }
         await Store.shared.goLive(note)
@@ -57,8 +57,23 @@ struct LiveNoteShortcuts: AppShortcutsProvider {
             systemImageName: "note.text.badge.plus")
         AppShortcut(
             intent: DismissLiveNoteIntent(),
-            phrases: ["Clear my \(.applicationName)", "Take \(.applicationName) off my lock screen"],
-            shortTitle: "Take Off Lock Screen",
+            phrases: [
+                "\(.applicationName) done",
+                "Done with \(.applicationName)",
+                "Mark \(.applicationName) done",
+                "Clear my \(.applicationName)",
+            ],
+            shortTitle: "Done",
             systemImageName: "checkmark.circle")
+        AppShortcut(
+            intent: ClearAllLiveNotesIntent(),
+            phrases: ["Clear all my \(.applicationName)s", "Take \(.applicationName) off my lock screen"],
+            shortTitle: "Clear All",
+            systemImageName: "xmark.circle")
+        AppShortcut(
+            intent: GoLiveAgainIntent(),
+            phrases: ["Put my \(.applicationName) back", "Show my last \(.applicationName)"],
+            shortTitle: "Go Live Again",
+            systemImageName: "arrow.counterclockwise.circle")
     }
 }

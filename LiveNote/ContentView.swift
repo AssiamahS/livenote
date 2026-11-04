@@ -37,28 +37,7 @@ struct ContentView: View {
     // MARK: live
 
     @ViewBuilder private var liveCard: some View {
-        if let note = store.liveNote {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 6) {
-                    Circle().fill(accent).frame(width: 8, height: 8)
-                    Text("ON YOUR LOCK SCREEN").font(.caption.weight(.bold)).foregroundStyle(.secondary)
-                    Spacer()
-                    if !LiveActivityController.isRunning {
-                        Button("Put back") { Task { await store.goLive(note) } }.font(.caption.bold())
-                    }
-                }
-                Text(note.text).font(.title3.weight(.medium)).fixedSize(horizontal: false, vertical: true)
-                HStack {
-                    Button { editing = note } label: { Label("Edit", systemImage: "pencil") }
-                    Spacer()
-                    Button(role: .destructive) { Task { await store.endLive() } } label: { Label("Done", systemImage: "checkmark") }
-                }
-                .font(.subheadline.weight(.semibold))
-                .buttonStyle(.glass)
-            }
-            .padding(18)
-            .glassEffect(.regular.tint(accent.opacity(0.12)), in: .rect(cornerRadius: 22))
-        } else {
+        if store.liveNotes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Nothing live").font(.headline)
                 Text("Type a note below, or press the Action button once it is set up.").font(.subheadline).foregroundStyle(.secondary)
@@ -66,6 +45,31 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
             .glassEffect(.regular, in: .rect(cornerRadius: 22))
+        } else {
+            HStack(spacing: 6) {
+                Circle().fill(accent).frame(width: 8, height: 8)
+                Text(store.liveNotes.count == 1 ? "ON YOUR LOCK SCREEN" : "\(store.liveNotes.count) ON YOUR LOCK SCREEN")
+                    .font(.caption.weight(.bold)).foregroundStyle(.secondary)
+                Spacer()
+                if store.liveNotes.count > 1 {
+                    Button("Clear all") { Task { await store.endAll() } }.font(.caption.bold())
+                }
+            }
+            .padding(.horizontal, 4)
+            ForEach(store.liveNotes) { note in
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(note.text).font(.title3.weight(.medium)).fixedSize(horizontal: false, vertical: true)
+                    HStack {
+                        Button { editing = note } label: { Label("Edit", systemImage: "pencil") }
+                        Spacer()
+                        Button { Task { await store.endLive(note) } } label: { Label("Done", systemImage: "checkmark") }
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .buttonStyle(.glass)
+                }
+                .padding(18)
+                .glassEffect(.regular.tint(accent.opacity(0.12)), in: .rect(cornerRadius: 22))
+            }
         }
     }
 
@@ -104,11 +108,12 @@ struct ContentView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Text(note.text).lineLimit(3)
                     Spacer()
+                    if store.isLive(note) { Text("LIVE").font(.caption2.bold()).foregroundStyle(accent) }
                     Text(note.createdAt, format: .dateTime.month(.abbreviated).day()).font(.caption2).foregroundStyle(.tertiary)
                 }
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.white.opacity(store.liveNote?.id == note.id ? 0.08 : 0.04), in: .rect(cornerRadius: 16))
+                .background(.white.opacity(store.isLive(note) ? 0.08 : 0.04), in: .rect(cornerRadius: 16))
                 .contentShape(.rect)
                 .onTapGesture { Task { await store.goLive(note) } }
                 .contextMenu {
@@ -168,13 +173,15 @@ struct SetupView: View {
                         if let url = URL(string: "shortcuts://create-shortcut") { UIApplication.shared.open(url) }
                     } label: { Label("Open Shortcuts", systemImage: "arrow.up.forward.app") }
                 }
-                Section("Siri") {
-                    Text("“Hey Siri, create a LiveNote” works with no setup.")
-                    Text("“Hey Siri, clear my LiveNote” takes it off the Lock Screen.")
+                Section("Siri, no setup") {
+                    Text("“Hey Siri, create a LiveNote” — new note on the Lock Screen.")
+                    Text("“Hey Siri, LiveNote done” — clears the newest note. No tapping.")
+                    Text("“Hey Siri, clear all my LiveNotes” — clears every card.")
                 }
                 Section("Good to know") {
-                    Text("iOS ends a Live Activity after about 8 hours. Open LiveNote, or run **Go Live With Last Note**, to put it back.")
-                    Text("Tap the check mark on the Lock Screen card when you are done with a note.")
+                    Text("Up to 3 notes can be live at once; they stack on the Lock Screen and the newest one shows in the Dynamic Island. Posting a 4th drops the oldest.")
+                    Text("The Dynamic Island pill shows only the first few words on every iPhone. Press and hold it to read the whole note.")
+                    Text("iOS ends a Live Activity after about 8 hours. Open LiveNote, or say “Hey Siri, put my LiveNote back”.")
                 }
             }
             .navigationTitle("Set up")
